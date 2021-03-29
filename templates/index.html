@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>XY Data</title>
+{% endblock %}
+
+{% block body %}
+    
+    <h1>Inlämningsuppgift 2</h1>
+    {% if xydatas|length < 1 %}
+        <h4>The database is empty. Add data below!</h4>
+    {% else %}
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Description</th>
+                <th>Owner</th>
+                <th>x</th>
+                <th>y</th>
+            </tr>
+            {% for xydata in xydatas %}
+                <tr>
+                    <td>{{ xydata.id }}</td>
+                    <td>{{ xydata.description }}</td>
+                    <td>{{ xydata.owner }}</td>
+                    <td>{{ xydata.x }}</td>
+                    <td>{{ xydata.y }}</td>
+                    <td>
+                        <a href="/delete/{{xydata.id}}">Delete</a>
+                        <br>
+                        <a href="/update/{{xydata.id}}">Update</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    
+    <form action="/" method="POST">
+        <table>
+            <tr>
+                <th>Description</th>
+                <th>Owner</th>
+                <th>x</th>
+                <th>y</th>
+            </tr>
+            <tr>
+                <td><input type="text" name="description"></td>
+                <td><input type="text" name="owner"></td>
+                <td><input type="text" name="x"></td>
+                <td><input type="text" name="y"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Add data">
+    </form>
+    
+   
+{% endblock %}

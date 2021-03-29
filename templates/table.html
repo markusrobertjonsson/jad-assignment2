@@ -1,0 +1,347 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Markus xydata databas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"  crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('../fonts/glyphicons-halflings-regular.eot');
+            src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+
+        .glyphicon {
+            position: relative;
+            top: 1px;
+            display: inline-block;
+            font-family: 'Glyphicons Halflings';
+            font-style: normal;
+            font-weight: normal;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .glyphicon-remove:before {
+            content: "\e014";
+        }
+
+        .glyphicon-edit:before {
+            content: "\e065";
+        }
+
+    </style>
+</head>
+<body>
+  <input type="hidden" id="productid" value="0" />
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <h2>Markus xydata databas</h2>
+      </div>
+    </div>
+    <div class="row" id="listForm">
+        <div class="col-sm-6">
+            <table id="productTable"
+                   class="table table-bordered table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th>Edit</th>
+                        <th>x</th>
+                        <th>y</th>
+                        <th>Description</th>
+                        <th>Owner</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="col-sm-12">
+            <button type="button" id="addButton"
+                    class="btn btn-primary"
+                    onclick="addClick();">
+                Add new
+            </button>
+        </div>
+
+    </div>
+
+      <div class="row" id="editForm">
+      <div class="col-sm-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+              <h3 id="action">Edit xydata</h3>
+          </div>
+          <div class="panel-body">
+              <div class="form-group">
+                  <label for="x">
+                      x
+                  </label>
+                  <input type="text" id="x"
+                         class="form-control" />
+              </div>
+              <div class="form-group">
+                  <label for="y">
+                      y
+                  </label>
+                  <input type="text" id="y"
+                         class="form-control" />
+              </div>
+              <div class="form-group">
+                  <label for="description">
+                      Description
+                  </label>
+                  <input type="text" id="description"
+                         class="form-control" />
+              </div>
+
+              <div class="form-group">
+                  <label for="url">Owner</label>
+                  <input type="url" id="owner"
+                         class="form-control" />
+              </div>
+          </div>
+          <div class="panel-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <button type="button" 
+                            class="btn btn-primary"
+                            onclick="updateCancelClick();">
+                        Cancel
+                    </button>
+
+                    <button type="button" id="updateButton"
+                            class="btn btn-primary"
+                            onclick="updateClick();">
+                        Save
+                    </button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      productList();
+    });
+
+
+    // let URL_BASE = "http://localhost:5000"
+    let URL_BASE = "http://flask-env.eba-iqpn6mj5.us-east-2.elasticbeanstalk.com"
+
+    function updateClick() {
+      // Build product object from inputs
+      xydata = new Object();
+      // xydata.id = $("#productid").val();
+      xydata.x = $("#x").val();
+      xydata.owner = $("#owner").val();
+      xydata.y = $("#y").val();
+      xydata.description = $("#description").val();
+
+      if ($("#updateButton").text().trim() == "Add") {
+        productAdd(xydata);
+      }
+      else {
+          productUpdate(xydata);
+      }
+    }
+
+    function addClick() {
+        $("#updateButton").text("Add");
+        $("#action").text("Add xydata");
+        $("#editForm").show();
+        $("#productid").val(0);
+        $("#x").val("");
+        $("#owner").val("");
+        $("#y").val("");
+        $("#description").val("");
+
+        $("#listForm").hide();
+
+    }
+      
+    function productUpdate(product) {
+      var url = URL_BASE + "/xydata/" + product.id;
+
+      // Call Web API to update product
+      $.ajax({
+        url: url,
+        type: 'PUT',
+        contentType: "application/json;charset=utf-8",
+        data: JSON.stringify(product),
+        success: function (product) {
+            productList();
+        },
+        error: function (request, message, error) {
+          handleException(request, message, error);
+        }
+      });
+    }
+
+   
+
+    function productAdd(product) {
+      // alert(product.id)
+      // Call Web API to add a new product
+      $.ajax({
+          url: URL_BASE + "/xydata",
+        type: 'POST',
+        contentType: "application/json;charset=utf-8",
+        data: JSON.stringify(product),
+        success: function (product) {
+            productList();
+        },
+        error: function (request, message, error) {
+          handleException(request, message, error);
+        }
+      });
+    }
+
+
+
+
+      function StartEdit(ctl) {
+          $("#listForm").hide();
+          $("#editForm").show();
+      // Get product id from data- attribute
+      var id = $(ctl).data("id");
+      // alert(id)
+
+      // Store product id in hidden field
+      $("#productid").val(id);
+
+      // Call Web API to get a Product
+      $.ajax({
+          url: URL_BASE + "/xydata/" + id,
+        type: 'GET',
+        dataType: 'json',
+        success: function (product) {
+          productToFields(product);
+
+          // Change Update Button Text
+          $("#updateButton").text("Update");
+            $("#action").text("Edit xydata");
+        },
+        error: function (request, message, error) {
+          handleException(request, message, error);
+        }
+      });
+    }
+
+    function productToFields(product) {
+      $("#x").val(product.x);
+      $("#owner").val(product.owner);
+        $("#y").val(product.y);
+      $("#description").val(product.description);
+    }
+
+    // Get all Products to display
+    function productList() {
+      $("#editForm").hide();
+      $("#listForm").show();
+
+      if ($("#productTable tbody").length == 0) {
+          $("#productTable").append("<tbody></tbody>");
+      }
+      $("#productTable tbody").empty();
+
+      // Call Web API to get a list of Products
+      $.ajax({
+          url: URL_BASE + '/xydata',
+        type: 'GET',
+        dataType: 'json',
+        success: function (products) {
+          productListSuccess(products);
+        },
+        error: function (request, message, error) {
+          handleException(request, message, error);
+        }
+      });
+    }
+
+    // Display all Products returned from Web API call
+    function productListSuccess(products) {
+      // Iterate over the collection of data
+      $.each(products, function (index, product) {
+        // Add a row to the Product table
+        productAddRow(product);
+      });
+    }
+
+    // Add Product row to <table>
+    function productAddRow(product) {
+      // Append row to <table>
+      $("#productTable tbody").append(
+        productBuildTableRow(product));
+    }
+
+    // Build a <tr> for a row of table data
+    function productBuildTableRow(product) {
+      var ret = "<tr>" +
+            "<td>" +
+              "<button type='button' " +
+                  "onclick='StartEdit(this);' " +
+                  "class='btn btn-default' " +
+                  "data-id='" + product.id + "'>" +
+                  "<span class='glyphicon glyphicon-edit' />" +
+              "</button>" +
+            "</td>" +
+            "<td>" + product.x + "</td>" +
+            "<td>" + product.y + "</td>" +
+          "<td>" + product.description + "</td>" +
+            "<td>" + product.owner + "</td>" +
+            "<td>" +
+              "<button type='button' " +
+                      "onclick='productDelete(this);' " +
+                      "class='btn btn-default' " +
+                      "data-id='" + product.id + "'>" +
+                      "<span class='glyphicon glyphicon-remove' />" +
+              "</button>" +
+            "</td>" +
+          "</tr>";
+
+      return ret;
+      }
+
+      function updateCancelClick() {
+          productList();
+      }
+
+    // Delete product from <table>
+    function productDelete(ctl) {
+        var id = $(ctl).data("id");
+
+        alert('Vi i struntar i DELETE men ungefärlig kod i HTML-filen...');
+
+      //// Call Web API to delete a product
+      //$.ajax({
+      //  url: "/api/Product/" + id,
+      //  type: 'DELETE',
+      //  success: function (product) {
+      //    $(ctl).parents("tr").remove();
+      //  },
+      //  error: function (request, message, error) {
+      //    handleException(request, message, error);
+      //  }
+      //});
+    }
+
+
+    // Handle exceptions from AJAX calls
+    function handleException(request, message, error) {
+      var msg = "";
+
+      msg += "Code: " + request.status + "\n";
+      msg += "Text: " + request.statusText + "\n";
+      if (request.responseJSON != null) {
+        msg += "Message" + request.responseJSON.Message + "\n";
+      }
+
+      alert(msg);
+    }
+  </script>
+</body>
+</html>

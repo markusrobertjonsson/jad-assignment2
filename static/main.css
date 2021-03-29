@@ -1,0 +1,17 @@
+body, html {
+    font-family: sans-serif;
+}
+
+table, td, th {
+    border: 1px solid #aaa;
+}
+
+th {
+    height: 30px;
+}
+
+td {
+    text-align: center;
+    padding: 5px;
+}
+
