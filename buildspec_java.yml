@@ -1,0 +1,17 @@
+version: 0.2
+
+phaes:
+  pre_build:
+    commands:
+      - echo Entered prebuild phase
+  build:
+    commands:
+      - echo Build started on
+      - mvn -DSkipTests clean package
+  post_build:
+    commands:
+      - echo Build completed
+  artifacts:
+    files:
+      - target/bilar-0.0.1-SNAPSHOT.jar
+    discard-paths: yes
