@@ -7,9 +7,11 @@
 {% block body %}
     
     <h1>Inlämningsuppgift 2</h1>
+    <p><a href="/info">Database info</a></p>
     {% if xydatas|length < 1 %}
         <h4>The database is empty. Add data below!</h4>
     {% else %}
+        Current database content:<br>
         <table>
             <tr>
                 <th>Id</th>
@@ -34,7 +36,10 @@
             {% endfor %}
         </table>
     {% endif %}
-    
+
+    <p></p>
+
+    Add new data to database:<br>
     <form action="/" method="POST">
         <table>
             <tr>
